@@ -1,0 +1,3 @@
+cat=com.example.demo.di1.Cat
+dog=com.example.demo.di1.Dog
+animal=com.example.demo.di1.Cat
