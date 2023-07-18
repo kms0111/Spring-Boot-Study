@@ -2,7 +2,11 @@ package com.example.demo.di5;
 
 
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.*;
 import org.springframework.core.annotation.AnnotationAttributes;
@@ -68,12 +72,15 @@ class OSCondition implements Condition {
         Environment environment = context.getEnvironment();
         System.out.println("System.getProperties() = " + System.getProperties());
         //return environment.getProperty("sun.desktop").equals("windows");
-        return environment.getProperty("mode").equals("ss");
+        return environment.getProperty("sun.desktop").equals("windows");
 
     }
 }
-//@Import({Config1.class, Config2.class})
-@EnableMyAutoConfiguration("tesddt")
+@EnableConfigurationProperties({MyProperties.class})
+@Configuration
+@Import({Config1.class, Config2.class})
+
+//@EnableMyAutoConfiguration("tesddt")
 class MainConfig{//자바 설정 파일
     @Bean
     Car car1111(){ return new Car();}
@@ -94,7 +101,7 @@ class Config2{
 }
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Import(MyImportSelector.class)
+// @Import(MyImportSelector.class)
 @interface EnableMyAutoConfiguration{
     String value() default "";
 }
@@ -114,31 +121,54 @@ class MyImportSelector implements ImportSelector{
     }
 }
 
+@EnableConfigurationProperties({MyProperties.class})
 @Configuration
 @ComponentScan
-@EnableAutoConfiguration
-public class Main {
-    public static void main(String[] args) {
-       // ApplicationContext ac = SpringApplication.run(Main.class,args); 여기서는 매개변수에 1개만 지정할 수 있음
-       // ApplicationContext ac = new AnnotationConfigApplicationContext(MainConfig.class, Config1.class, Config2.class);
-        ApplicationContext ac = new AnnotationConfigApplicationContext(MainConfig.class);
+//@EnableAutoConfiguration
+public class Main implements CommandLineRunner{
+    @Autowired
+    MyProperties myProperties;
+
+    @Autowired
+    ApplicationContext ac;
 
 
-
-        // 자바 설정을 이용하는 AC, 여러개의 설정파일을 매개변수에 넣을 수 있다.
-        // 매개변수 안에 있는 class는 직접 다 지정해주었기 때문에 따로 @Configuration을 등록할 필요학 없다.
+    @Override
+    public void run(String... args) throws Exception { //인스턴스 매서드를 만든다.
+        // 해당 매서드는 아래에 있는 public static void main(String[]args)와 같다. 하지만 인스턴스 메서드라는 것이 차이점이다.
+        System.out.println("myProperties.getEmail() = " + myProperties.getEmail());
+        System.out.println("myProperties.getDomain() = " + myProperties.getDomain());
         String[] beanDefinitionNames=ac.getBeanDefinitionNames();
 
         Arrays.sort(beanDefinitionNames);
         Arrays.stream(beanDefinitionNames)
                 .filter(b->!b.startsWith("org"))
                 .forEach(System.out::println);
-        System.out.println("ssssssssssssssssssssssss");
-        System.out.println("Config1.class.getName() = " + Config1.class.getName());
+
+        System.out.println("prop.getEmail() = " + myProperties.getEmail());
+        System.out.println("prop.getDomain() = " + myProperties.getDomain());
+
+    }
+
+    public static void main(String[] args) {
+       // ApplicationContext ac = SpringApplication.run(Main.class,args); //여기서는 매개변수에 1개만 지정할 수 있음
+       // ApplicationContext ac = new AnnotationConfigApplicationContext(MainConfig.class, Config1.class, Config2.class);
+       // ApplicationContext ac = new AnnotationConfigApplicationContext(MainConfig.class);
+
+
+
+        // 자바 설정을 이용하는 AC, 여러개의 설정파일을 매개변수에 넣을 수 있다.
+        // 매개변수 안에 있는 class는 직접 다 지정해주었기 때문에 따로 @Configuration을 등록할 필요학 없다.
+
         //System.out.println("ac.getBean(\"sportCar\") = " + ac.getBean("sportCar"));
+//        MyProperties prop = ac.getBean(MyProperties.class);
+//        System.out.println("prop.getEmail() = " + prop.getEmail());
+//        System.out.println("prop.getDomain() = " + prop.getDomain());
 
     }
     @Bean
     MyBean myBean(){return new MyBean();}
+
+
 }
 class MyBean{}

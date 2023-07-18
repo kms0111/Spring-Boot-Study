@@ -1,7 +1,6 @@
 package demo1;
 
 
-import javax.websocket.PongMessage;
 
 public class Point {
 

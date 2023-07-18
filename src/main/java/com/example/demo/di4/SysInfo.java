@@ -2,11 +2,12 @@ package com.example.demo.di4;
 
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
-@Component
-@PropertySource("setting.properties")
+@Configuration
+@PropertySource("classpath:/setting.properties")
 public class SysInfo {
 
     @Value("#{systemProperties['user.timezone']}")
